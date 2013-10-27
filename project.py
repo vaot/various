@@ -98,7 +98,6 @@ class Parent(object):
         limit = 128 + scalex
         x1,x2 = (83 + scalex), (141 + scalex2)
         while x1 <= limit:
-            print x1, x2
             oval = Oval(Point(x1, 461 + scaley),Point(x2, 475 + scaley2))
             oval.setFill(color)
             oval.draw(win)
@@ -287,7 +286,7 @@ class Nick(Parent):
         self.mouth()
         self.decoration()
 
-class Carlos(CommomParts):
+class Carlos(Parent):
 
     def head(self):
         super(Carlos, self).head(150)
@@ -308,7 +307,6 @@ class Carlos(CommomParts):
         x = 0
         for each in range(393,439,45):
             x += 1
-            print x
             y = (360 if x == 2 else 355)
             cir = Circle(Point(each,y),11)
             cir.setFill('white')
