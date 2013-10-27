@@ -1,3 +1,4 @@
+
 from graphics import *
 win = GraphWin("My Circle", 900, 506)
 
@@ -40,8 +41,38 @@ class CommomParts(object):
         min_c.setWidth(2)
         min_c.draw(win)
 
+    def head(self, scalex = 0, scaley = 0):
+        circle = Circle(Point(273 + scalex,363 + scaley), 70)
+        circle.setFill(DEFAULT_SKIN)
+        circle.draw(win)
+
+    def body(self, color, scalex = 0, scaley = 0):
+        rec = Rectangle(Point(222 + scalex,394 + scaley), Point(322 + scalex , 462 + scaley))
+        rec.setFill(color)
+        rec.setWidth(0)
+        rec.draw(win)
+
+    def low_body(self, array1, array2, color, scale_size = 0):
+        pol = Polygon(Point(77 + array1[0],444 + array2[0]),
+                      Point(200 + array1[1] - scale_size,444 + array2[1]),
+                      Point(193 + array1[2] - scale_size, 462 + array2[2]),
+                      Point(80 + array1[3], 462 + array2[3]))
         
-class Bob(object):
+        pol.setFill(color)
+        pol.draw(win)
+        
+    def feet(self, color, scalex = 0, scalex2 = 0, scaley = 0, scaley2 = 0):
+        limit = 128 + scalex
+        x1,x2 = (83 + scalex), (141 + scalex2)
+        while x1 <= limit:
+            print x1, x2
+            oval = Oval(Point(x1, 461 + scaley),Point(x2, 475 + scaley2))
+            oval.setFill(color)
+            oval.draw(win)
+            x1 += 45
+            x2 += 45 
+        
+class Bob(CommomParts):
     
     def hood(self):
         pt1 = Point(138,334)
@@ -94,6 +125,19 @@ class Bob(object):
         rec.setFill(color_rgb(212,31,64))
         rec.draw(win)
 
+    def decoration(self):
+        lin = Line(Point(144,420),Point(144,450))
+        lin.setWidth(2)
+        lin.draw(win)
+        y1 = 420
+        y2 = 425
+        while y1 <= 449:  
+            lin2 = Line(Point(140,y1), Point(140,y2))
+            lin2.setWidth(2)
+            lin2.draw(win)
+            y1 += 8
+            y2 += 8
+
     def hand(self):
         oval = Oval(Point(27,383), Point(75,417))
         oval.setFill(GENERAL_YELLOW)
@@ -102,7 +146,12 @@ class Bob(object):
             lin = Line(Point(each,388), Point(each,400))
             lin.draw(win)
 
+    def low_body(self):
+        super(Bob, self).low_body([0]*4, [0]*4, color_rgb(157,95,82))
+        super(Bob, self).feet('black')   
+
     def draw_bob(self):
+        self.low_body()
         self.body()
         self.hand()
         self.hood()
@@ -111,6 +160,7 @@ class Bob(object):
         self.closed_eyes()
         self.closed_eyes('invert!')
         self.mouth()
+        self.decoration()
         
 class Nick(CommomParts):
     
@@ -131,9 +181,7 @@ class Nick(CommomParts):
             
     def head(self):
         self.outerhead()
-        circle = Circle(Point(273,363), 70)
-        circle.setFill(DEFAULT_SKIN)
-        circle.draw(win)
+        super(Nick, self).head()
         
     def outerhead(self):
         circle = Circle(Point(273,373), 65)
@@ -154,6 +202,11 @@ class Nick(CommomParts):
             circle.setFill('black')
             circle.draw(win)
 
+    def decoration(self):
+        lin = Line(Point(268,433),Point(268,463))
+        lin.setWidth(2)
+        lin.draw(win)
+
     def mouth(self):
         pol = Polygon(Point(255,390), Point(285,389), Point(280,400),Point(263,399))
         pol.setFill('black')
@@ -171,19 +224,13 @@ class Nick(CommomParts):
             x2 += 6
             
     def body(self):
-        rec = Rectangle(Point(222,394), Point(322, 462))
-        rec.setFill(color_rgb(254,97,16))
-        rec.setWidth(0)
-        rec.draw(win)
+        super(Nick, self).body(color_rgb(254,97,16))
         
     def hands(self):
         super(Nick, self).hands([0], [0], color_rgb(87,197,38))
         super(Nick, self).hands([160], [0], color_rgb(87,197,38))
         
     def arm(self):
-        # Now all we have to do is scale the arm
-        # In other words, every single x or y will be multiplied by
-        # the number in th array
         self.hands()
         super(Nick, self).arm([0]*9,[22]*9, color_rgb(254,97,16))
     
@@ -191,7 +238,12 @@ class Nick(CommomParts):
     def arm_right(self):
         super(Nick, self).arm_right([0]*9,[0]*9, color_rgb(254,97,16))
         
+    def low_body(self):
+        super(Nick, self).low_body([150]*4, [10]*4, color_rgb(47,79,76), 30)
+        super(Nick, self).feet('black',135,135,10,10)
+        
     def draw_nick(self):
+        self.low_body()
         self.arm()
         self.arm_right()
         self.hands()
@@ -199,11 +251,92 @@ class Nick(CommomParts):
         self.head()
         self.hood()
         self.eyes()
-        self.mouth()        
+        self.mouth()
+        self.decoration()
 
+class Carlos(CommomParts):
+
+    def head(self):
+        super(Carlos, self).head(150)
+
+    def mohawk(self):    
+        pol = Polygon(Point(421,249),Point(450,296),Point(421,319),Point(396,297))
+        pol.setFill('black')
+        pol.draw(win)
+
+    def eyebrow(self):
+        lin = Line(Point(377,342), Point(410,350))
+        lin2 = Line(Point(430,350),Point(473,342))
+        for each in [lin, lin2]:
+            each.setWidth(2)
+            each.draw(win)
+
+    def eyes(self):
+        x = 0
+        for each in range(393,439,45):
+            x += 1
+            print x
+            y = (360 if x == 2 else 355)
+            cir = Circle(Point(each,y),11)
+            cir.setFill('white')
+            cir.draw(win)
+            cir2 = Circle(Point(each,y),5)
+            cir2.setFill('black')
+            cir2.draw(win)
+
+    def mouth(self):
+        cir = Circle(Point(418,388), 20)
+        cir.setFill('black')
+        cir.draw(win)
+        cir1 = Circle(Point(417,383), 20)
+        cir1.setFill(DEFAULT_SKIN)
+        cir1.setWidth(0)
+        cir1.draw(win)
+
+    def decoration(self):
+        lin = Line(Point(420,433),Point(420,463))
+        lin.setWidth(2)
+        lin.draw(win)
+        rec = Rectangle(Point(420,433),Point(430,443))
+        rec.draw(win)
+
+    def arm(self):
+        super(Carlos, self).arm([163]*9,[30]*9,color_rgb(157,95,82))
+
+    def arm_right(self):
+        super(Carlos, self).arm_right([150]*9,[10]*9,color_rgb(157,95,82))
+
+    def body(self):
+        super(Carlos, self).body(color_rgb(157,95,82),150)
+
+    def hands(self):
+        super(Carlos, self).hands([170], [10], color_rgb(212,31,64))
+        super(Carlos, self).hands([300], [10], color_rgb(212,31,64))
+
+    def low_body(self):
+         super(Carlos, self).low_body([300]*4, [10]*4, color_rgb(80,98,162), 30)
+         super(Carlos, self).feet(color_rgb(212,31,64),285,285,10,10)
+         
+    def draw_carlos(self):
+        self.low_body()
+        self.arm()
+        self.arm_right()
+        self.body()
+        self.head()
+        self.mohawk()
+        self.eyebrow()
+        self.eyes()
+        self.mouth()
+        self.hands()
+        self.decoration()
+    
+        
 new_bob = Bob()
 new_bob.draw_bob()
 
+new_carlos = Carlos()
+new_carlos.draw_carlos()
 
 new_nick = Nick()
 new_nick.draw_nick()
+
