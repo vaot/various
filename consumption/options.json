@@ -1,0 +1,27 @@
+{
+  "cars": {
+    "acura ilx" : 28.0,
+    "toyota corolla": 30.0,
+    "honda civic": 25.0
+  },
+
+  "cities": {
+    "new york": 0.089,
+    "vancouver": 0.045,
+    "sao paulo": 0.089
+  },
+
+  "forecast": {
+    "sunny": 0.0,
+    "rainy": 0.02,
+    "snow": 0.03
+  },
+  "conditions": {
+    "traffic_jam": 0.03,
+    "normal": 0.01,
+    "busy": 0.02
+  },
+  "passengers": 0.02,
+  "stops": 0.02,
+  "traffic_lights": 0.02
+}
