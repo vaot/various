@@ -17,14 +17,6 @@ class Getter(object):
       def options():
           return Helper.read_json("options.json")
 
-      def __lshift__(self, other):
-          return self.append(other)
-
-      @classmethod
-      def testing(self):
-          vaot = []
-          vaot << 2
-
       def cars(self, name):
           return self.options()["cars"][name.lower()]
 
@@ -57,9 +49,6 @@ class ConsuptionCalculator(Helper, Getter):
           self.stops = Getter.stops(self) * config_file["Stops"]
           self.city = Getter.cities(self, config_file["City"] )
           self.traffic_lights = Getter.traffic_lights(self) * config_file["Traffic Lights"]
-
-
-print Getter.testing()
 
 # ============================
 # ******* HOW THIS WORKS *********
