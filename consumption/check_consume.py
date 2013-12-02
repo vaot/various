@@ -47,6 +47,7 @@ ADD_WEIGHT_TO_MPG = lambda mpg, weight: mpg - (mpg * weight)
 REPORT_HEADER = [
   "City",
   "Total Distance(in Miles)",
+  "Gas Gallons Needed",
   "Total Cost(in USD)",
   "Car Name",
   "MPG without D.Conditions",
@@ -139,6 +140,7 @@ class ConsuptionCalculator(Helper, Getter):
           return map(str, [
               self.city_name,
               self.miles,
+              self.gallons_needed(),
               self.total_cost(),
               self.car_name.capitalize(),
               self.car_mpg,
