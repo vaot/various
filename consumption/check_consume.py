@@ -1,6 +1,60 @@
-from pyparsing import Word, alphas
 import json
 
+DOCUMENTATION = r"""============================
+
+
+******* HOW TO USE IT **********
+Well , in the current folder there will be two JSON files:  < config.json > and  < options.json >.
+From the options files you can see the options you are able to choose.
+After choosing the options, you specify them in the cofig file.
+As result, the program will print a report for you with all the data, in .TXT and .CSV format.
+Make sure you play around with the config file.
+If there isnt the option you would like to, you can always add it to the  < options.json > and
+specify the weights for the newly added option.
+
+
+******* HOW THIS WORKS *********
+First, we need to consider that consumption of gas mileage
+depends on driving conditions, according to some research
+gas milage vary by 10 to 15% on driving conditions
+So we are given a formula to calculate the gas mileage, but we need to
+distribute the percentage that varies on drving conditions
+
+THE DISTRIBUTION BELOW IS OBTAINER BY COMMON SENSE
+AS WE COLLECT MORE DATA WE CAN JUST CHANGE THE VAUES
+=========== Weather : 5%
+=========== Stops : 3% 0.03
+=========== Conditions : 5% 0.05
+=========== Passengers : 3% 0.03
+
+References :
+http://www.bloomberg.com/news/2013-11-13/-mileage-may-vary-all-too-true-spurs-u-s-to-test-more-cars.html
+http://electronics.howstuffworks.com/gadgets/automotive/gas-mileage-monitor.htm
+http://www.fueleconomy.gov/feg/maintain.shtml
+==========================
+
+http://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2013&year2=2013&make=Acura&model=ILX&srchtyp=ymm
+http://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2013&year2=2013&make=Toyota&model=Corolla&srchtyp=ymm
+http://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2013&year2=2013&make=Honda&model=Civic&srchtyp=ymm
+"""
+
+
+# Well, the reason why I didnt define this as function
+# member of the classes is that I want to avoid reference to self
+# since this will be used pretty often
+ADD_WEIGHT_TO_MPG = lambda mpg, weight: mpg - (mpg * weight)
+
+REPORT_HEADER = [
+  "City",
+  "Total Distance(in Miles)",
+  "Total Cost(in USD)",
+  "Car Name",
+  "MPG without D.Conditions",
+  "MPG w/ D.Conditions",
+  "Forecast",
+  "Passengers",
+  "Traffic Lights"
+]
 
 class Helper(object):
 
@@ -13,23 +67,17 @@ class Helper(object):
 
 class Getter(object):
 
-      @staticmethod
-      def options():
+      def options(self):
           return Helper.read_json("options.json")
-
-      def __lshift__(self, other):
-          return self.append(other)
-
-      @classmethod
-      def testing(self):
-          vaot = []
-          vaot << 2
 
       def cars(self, name):
           return self.options()["cars"][name.lower()]
 
-      def cities(self, name):
-          return self.options()["cities"][name.lower()]
+      def city_gas_price(self, name):
+          return self.options()["cities"][name.lower()][1]
+
+      def city_weight(self, name):
+          return self.options()["cities"][name.lower()][0]
 
       def forecast(self, name):
           return self.options()["forecast"][name.lower()]
@@ -51,42 +99,95 @@ class ConsuptionCalculator(Helper, Getter):
       def __init__(self, config_file):
           config_file = super(ConsuptionCalculator, self).read_json(config_file)
 
-          self.car = Getter.cars(self, config_file["Car"] )
-          self.weather = Getter.forecast(self, config_file["Forecast"] )
-          self.passengers = Getter.passengers(self) * config_file["Passengers"]
-          self.stops = Getter.stops(self) * config_file["Stops"]
-          self.city = Getter.cities(self, config_file["City"] )
-          self.traffic_lights = Getter.traffic_lights(self) * config_file["Traffic Lights"]
+          self.car_mpg = Getter.cars(self, config_file["Car"] )
+          self.car_name = config_file["Car"]
+          self.weather_weight = Getter.forecast(self, config_file["Forecast"] )
+          self.weather = config_file["Forecast"]
+          self.passengers_weight = Getter.passengers(self) * config_file["Passengers"]
+          self.passengers = config_file["Passengers"]
+          self.stops_weight = Getter.stops(self) * config_file["Stops"]
+          self.stops = config_file["Stops"]
+          self.city_name = config_file["City"]
+          self.city_weight = Getter.city_weight(self, config_file["City"] )
+          self.city_gas_price = Getter.city_gas_price(self, config_file["City"] )
+          self.traffic_lights_weight = Getter.traffic_lights(self) * config_file["Traffic Lights"]
+          self.traffic_lights = config_file["Traffic Lights"]
+          self.miles = config_file["Miles"]
 
+      def attributes(self):
+          return self.__dict__
 
-print Getter.testing()
+      def gallons_needed(self):
+          return ( self.miles/self.add_weights_to_car_mpg() )
 
-# ============================
-# ******* HOW THIS WORKS *********
-# First, we need to consider that consumption of gas mileage
-# depends on driving conditions, according to some research
-# gas milage vary by 10 to 15% on driving conditions
-# So we are given a formula to calculate the gas mileage, but we need to
-# distribute the percentage that varies on drving conditions
+      def total_cost(self):
+          return ( self.gallons_needed() * self.city_gas_price )
 
-# THE DISTRIBUTION BELOW IS OBTAINER BY COMMON SENSE
-# AS WE COLLECT MORE DATA WE CAN JUST CHANGE THE VAUES
-# =========== Weather : 5%
-# =========== Stops : 3% 0.03
-# =========== Conditions : 5% 0.05
-# =========== Passengers : 3% 0.03
+      def add_weights_to_car_mpg(self):
+          original = self.car_mpg
+          # we take a percentage out of the mpg of the car
+          # based on all the factors, because it may vary
+          # then we subtract, as can be seen it does affect
+          # the mpg from 17% to 30% including margin for errors
+          weights = self.weights_to_array()
+          for weight in weights:
+              result = ADD_WEIGHT_TO_MPG(original, weight)
+              original = result
+          return original
 
-# References :
-# http://www.bloomberg.com/news/2013-11-13/-mileage-may-vary-all-too-true-spurs-u-s-to-test-more-cars.html
-# http://electronics.howstuffworks.com/gadgets/automotive/gas-mileage-monitor.htm
-# http://www.fueleconomy.gov/feg/maintain.shtml
-# ==========================
+      def report_data(self):
+          return map(str, [
+              self.city_name,
+              self.miles,
+              self.total_cost(),
+              self.car_name.capitalize(),
+              self.car_mpg,
+              self.add_weights_to_car_mpg(),
+              self.weather.capitalize(),
+              self.passengers,
+              self.traffic_lights
+            ]
+          )
 
-# http://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2013&year2=2013&make=Acura&model=ILX&srchtyp=ymm
-# http://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2013&year2=2013&make=Toyota&model=Corolla&srchtyp=ymm
-# http://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2013&year2=2013&make=Honda&model=Civic&srchtyp=ymm
+      def weights_to_array(self):
+          return [
+            self.weather_weight,
+            self.passengers_weight,
+            self.stops_weight,
+            self.traffic_lights_weight,
+            self.city_weight
+          ]
 
+      def populate_report_csv(self):
+          new_file = file(FILE_REPORT + ".csv", "w")
+          new_report = self.report_data()
 
+          new_file.write("%s \n" % (",".join(REPORT_HEADER)))
+          new_file.write("%s \n" % (",".join(new_report)))
+          new_file.close
+          print 4 * "...New CSV report was just issued..."
 
+      def populate_report_txt(self):
+          new_file = file(FILE_REPORT + ".txt", "w")
+          new_report = self.map_data_and_header()
 
+          for k,v in new_report.iteritems():
+              new_file.write("%s : %s \n" % (k,v))
+          new_file.close()
+          print 4 * "...New TXT report was just issued..."
 
+      def map_data_and_header(self):
+          data = self.report_data()
+          return dict(zip(REPORT_HEADER, data))
+
+def main():
+    print 5 * "\n"
+    new_report = ConsuptionCalculator("config.json")
+    new_report.populate_report_csv()
+    new_report.populate_report_txt()
+    print 5 * "\n"
+    print DOCUMENTATION
+
+if __name__ == "__main__":
+    FILE_REPORT = raw_input("Please, provide an filename for your report ? (it will be save in this program folder) :")
+    main()

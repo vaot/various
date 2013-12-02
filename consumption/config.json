@@ -5,5 +5,6 @@
   "Passengers" : 6,
   "City": "New York",
   "Conditions": "traffic_jam",
-  "Traffic Lights": 4
+  "Traffic Lights": 4,
+  "Miles": 200
 }

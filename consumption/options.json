@@ -6,9 +6,9 @@
   },
 
   "cities": {
-    "new york": 0.089,
-    "vancouver": 0.045,
-    "sao paulo": 0.089
+    "new york": [0.089, 3.51],
+    "vancouver": [0.045, 4.71],
+    "sao paulo": [0.089, 4.92]
   },
 
   "forecast": {
