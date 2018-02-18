@@ -4,12 +4,12 @@ DOCUMENTATION = r"""============================
 
 
 ******* HOW TO USE IT **********
-Well , in the current folder there will be two JSON files:  < config.json > and  < options.json >.
-From the options files you can see the options you are able to choose.
-After choosing the options, you specify them in the cofig file.
-As result, the program will print a report for you with all the data, in .TXT and .CSV format.
-Make sure you play around with the config file.
-If there isnt the option you would like to, you can always add it to the  < options.json > and
+The current folder contains two JSON files: < config.json > and < options.json >.
+From the options files you can see what options are available to choose from.
+After choosing the options, specify them in the config file.
+As a result, the program will print a report containing data in .TXT and .CSV format.
+Experiment with the config file and ensure it contains your needed optons. 
+If certain options aren't available, add it to < options.json > and
 specify the weights for the newly added option.
 
 
